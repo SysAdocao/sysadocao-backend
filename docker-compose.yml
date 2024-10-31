@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  sys-adocao-db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: sysadocao_user
+      POSTGRES_PASSWORD: postgres1230
+      POSTGRES_DB: sysadocao_pg
