@@ -1,0 +1,17 @@
+{
+    "extends": [
+      "@rocketseat/eslint-config/node"
+    ],
+    
+    "rules": {
+      "prettier/prettier": [
+        "error",
+        { 
+          "endOfLine": "auto",
+          "semi": false
+        }
+      ],
+      "camelcase": "off",
+      "no-useless-constructor": "off"
+    }
+  }
