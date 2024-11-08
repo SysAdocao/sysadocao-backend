@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { AdopterController } from "../controllers/AdopterController" // Falta implementar o controller
+import { AdopterController } from "../controllers/AdopterController.js" 
 
 const router = Router()
 const adopterController = new AdopterController()
