@@ -29,27 +29,34 @@ enum Status {
 }
 
 model Address {
-  id           String    @id @default(uuid())
+  id           String  @id @default(uuid())
   street       String
   number       String
   neighborhood String
   city         String
   state        String
-  zipCode      String
-  complement   String?
-  Adopter      Adopter[]
+  zipCode      String  @db.VarChar(9)
+  complement   String? @default("") @db.VarChar(100)
+  User         User[]
 }
 
-model Adopter {
-  id    String @id @default(uuid())
-  name  String
-  email String @unique
-  phone String
+model User {
+  id       String @id @default(uuid())
+  name     String @db.VarChar(100)
+  email    String @unique @db.VarChar(100)
+  password String
+  role     Role   @default(USER)
+  phone    String @db.VarChar(20)
 
   address   Address? @relation(fields: [addressId], references: [id])
   addressId String
 
   Adoption Adoption[]
+}
+
+enum Role {
+  ADMIN
+  USER
 }
 
 model Adoption {
@@ -59,6 +66,6 @@ model Adoption {
   pet   Pet    @relation(fields: [petId], references: [id])
   petId String
 
-  adopter   Adopter @relation(fields: [adopterId], references: [id])
-  adopterId String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
