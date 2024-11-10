@@ -1,12 +1,16 @@
 import { Router } from "express"
 import petRouter from "./pet.routes"
-import adopterRouter from "./adopter.routes"
+import userRouter from "./user.routes"
 import adoptionRouter from "./adoption.routes"
+import LoginController from "@/controllers/LoginController"
+import { verifyAuthentication } from "@/middlewares/auth"
 
 const router = Router()
+const loginController = new LoginController()
 
-router.use("/pets", petRouter)
-router.use("/adopters", adopterRouter)
-router.use("/adoptions", adoptionRouter)
+router.use("/users", userRouter)
+router.use("/login", loginController.login)
+router.use("/pets", verifyAuthentication, petRouter)
+router.use("/adoptions", verifyAuthentication, adoptionRouter)
 
 export default router
