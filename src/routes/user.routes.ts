@@ -6,8 +6,8 @@ const userController = new UserController()
 
 router.post("/", userController.create)
 router.get("/", userController.getAll)
-router.get("/:userId", userController.getById)
-router.put("/:userId", userController.update)
-router.delete("/:userId", userController.delete)
+router.get("/:id", userController.getById)
+router.put("/:id", userController.update)
+router.delete("/:id", userController.delete)
 
 export default router

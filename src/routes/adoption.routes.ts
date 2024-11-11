@@ -6,7 +6,7 @@ const adoptionController = new AdoptionController()
 
 router.post("/", adoptionController.create)
 router.get("/", adoptionController.getAll)
-router.get("/:adoptionId", adoptionController.getById)
-router.delete("/:adoptionId", adoptionController.delete)
+router.get("/:id", adoptionController.getById)
+router.delete("/:id", adoptionController.delete)
 
 export default router
