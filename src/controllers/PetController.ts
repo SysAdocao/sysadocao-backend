@@ -1,76 +1,75 @@
-import  prisma  from '../database/PrismaCliente'; 
-import { Request, Response } from 'express'; 
+import { prisma } from "@/lib/prisma"
+import { Request, Response, NextFunction } from "express"
+import { PetSchema } from "@/schemas/PetSchema"
+import AppError from "@/errors/AppError"
 
 class PetController {
-    public async fetchAllPets(req: Request, res: Response): Promise<void> {
-        try {
-            const petsList = await prisma.pet.findMany();
-            res.status(200).json(petsList);
-        } catch (err) {
-            res.status(500).json({ error: 'Erro ao buscar pets: ' + (err as Error).message });
-        }
+  public async getAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const petsList = await prisma.pet.findMany()
+      return res.status(200).json(petsList)
+    } catch (error) {
+      next(error)
     }
+  }
 
-    public async fetchPetById(req: Request, res: Response): Promise<void> { 
-        const { id } = req.params;
-        try {
-            const petData = await prisma.pet.findUnique({ where: { id } });
-            if (!petData) {
-                res.status(404).json({ error: 'Pet não encontrado' });
-            }
-            res.status(200).json(petData);
-        } catch (err: any) { 
-            res.status(500).json({ error: 'Erro ao buscar pet: ' + err.message });
-        }
+  public async getById(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params
+    try {
+      const petData = await prisma.pet.findUnique({ where: { id } })
+      if (!petData) {
+        throw new AppError("Pet not found", 404)
+      }
+      return res.status(200).json(petData)
+    } catch (error) {
+      next(error)
     }
+  }
 
-    public async createNewPet(req: Request, res: Response): Promise<void> { 
-        const { nome, especie, dataNascimento, descricao, status } = req.body;
-        try {
-            const newPet = await prisma.pet.create({
-                data: {
-                    nome,
-                    especie,
-                    dataNascimento: new Date(dataNascimento),
-                    descricao,
-                    status,
-                },
-            });
-            res.status(201).json(newPet);
-        } catch (err: any) {
-            res.status(500).json({ error: 'Erro ao criar pet: ' + err.message });
-        }
-    }
+  public async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const petData = PetSchema.omit({ id: true }).parse(req.body)
 
-    public async updatePet(req: Request, res: Response): Promise<void> { 
-        const { id } = req.params;
-        const { nome, especie, dataNascimento, descricao, status } = req.body;
-        try {
-            const updatedPet = await prisma.pet.update({
-                where: { id },
-                data: {
-                    nome,
-                    especie,
-                    dataNascimento: new Date(dataNascimento),
-                    descricao,
-                    status,
-                },
-            });
-            res.status(200).json(updatedPet);
-        } catch (err: any) { 
-            res.status(500).json({ error: 'Erro ao atualizar pet: ' + err.message });
-        }
+      const newPet = await prisma.pet.create({
+        data: {
+          ...petData,
+        },
+      })
+      return res.status(201).json(newPet)
+    } catch (error) {
+      next(error)
     }
+  }
 
-    public async removePet(req: Request, res: Response): Promise<void> {
-        const { id } = req.params;
-        try {
-            await prisma.pet.delete({ where: { id } });
-            res.status(200).json({ message: 'Pet excluído com sucesso' });
-        } catch (err: any) {
-            res.status(500).json({ error: 'Erro ao excluir pet: ' + err.message });
-        }
+  public async update(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params
+    try {
+      const petData = PetSchema.partial().omit({ id: true }).parse(req.body)
+
+      const updatedPet = await prisma.pet.update({
+        where: { id },
+        data: petData,
+      })
+
+      if (!updatedPet) {
+        throw new AppError("Pet not found!", 404)
+      }
+
+      return res.status(200).json(updatedPet)
+    } catch (error) {
+      next(error)
     }
+  }
+
+  public async delete(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.params
+    try {
+      await prisma.pet.delete({ where: { id } })
+      return res.status(200).json({ message: "Pet deleted successfully!" })
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
-export default PetController; 
+export default PetController

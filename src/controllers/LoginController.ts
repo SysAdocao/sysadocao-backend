@@ -1,39 +1,43 @@
-import { Request, Response } from "express"
+import { Request, Response, NextFunction } from "express"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { prisma } from "@/lib/prisma"
+import AppError from "@/errors/AppError"
+import { env } from "@/env"
+import { LoginSchema } from "@/schemas/LoginSchema"
 
 class LoginController {
-  public async login(req: Request, res: Response) {
-    const { email, password } = req.body
+  public async login(req: Request, res: Response, next: NextFunction) {
     try {
+      const { email, password } = LoginSchema.parse(req.body)
+
       const user = await prisma.user.findUnique({
         where: { email },
       })
 
       if (!user) {
-        return res.status(404).json({ error: "User not found" })
+        throw new AppError("User not found", 404)
       }
 
-      const passwordMatch = await bcrypt.compareSync(password, user.password)
+      const passwordMatch = bcrypt.compareSync(password, user.password)
 
       if (!passwordMatch) {
-        return res.status(401).json({ error: "Invalid credentials" })
+        throw new AppError("Invalid credentials", 401)
       }
 
       const payload = { id: user.id, name: user.name, role: user.role }
 
-      if (!process.env.SECRET_JWT) {
-        return res.status(500).json({ error: "Internal server error" })
+      if (!env.SECRET_JWT) {
+        throw new AppError("Internal server error", 500)
       }
 
-      const token = jwt.sign(payload, process.env.SECRET_JWT, {
+      const token = jwt.sign(payload, env.SECRET_JWT, {
         expiresIn: "1h",
       })
 
       return res.status(200).json({ data: payload, token })
-    } catch (error: any) {
-      return res.status(500).json({ error: error.message })
+    } catch (error) {
+      next(error)
     }
   }
 }
