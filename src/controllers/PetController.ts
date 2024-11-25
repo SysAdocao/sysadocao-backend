@@ -6,7 +6,18 @@ import AppError from "@/errors/AppError"
 class PetController {
   public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const petsList = await prisma.pet.findMany()
+      const { name, species, size } = req.query
+
+      const filters: { name?: object; species?: object; size?: string } = {}
+      if (name) filters.name = { contains: name as string, mode: "insensitive" }
+      if (species)
+        filters.species = { contains: species as string, mode: "insensitive" }
+      if (size) filters.size = size as string
+
+      const petsList = await prisma.pet.findMany({
+        where: filters,
+      })
+
       return res.status(200).json(petsList)
     } catch (error) {
       next(error)

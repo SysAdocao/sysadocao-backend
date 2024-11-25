@@ -9,7 +9,8 @@ const router = Router()
 const loginController = new LoginController()
 
 router.use("/users", userRouter)
-router.use("/login", loginController.login)
+router.post("/login", loginController.login)
+router.get("/validate-token", loginController.validadeToken)
 router.use("/pets", verifyAuthentication, petRouter)
 router.use("/adoptions", verifyAuthentication, adoptionRouter)
 

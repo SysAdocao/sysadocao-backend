@@ -40,6 +40,32 @@ class LoginController {
       next(error)
     }
   }
+
+  public async validadeToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      const token = req.headers.authorization?.split(" ")[1]
+
+      if (!token) {
+        throw new AppError("Token not provided", 401)
+      }
+
+      if (!env.SECRET_JWT) {
+        throw new AppError("Internal server error", 500)
+      }
+
+      const decoded = jwt.verify(token, env.SECRET_JWT) as jwt.JwtPayload
+
+      if (!decoded || !decoded.id || !decoded.name) {
+        throw new AppError("Invalid token", 401)
+      }
+
+      return res
+        .status(200)
+        .json({ id: decoded.id, name: decoded.name, role: decoded.role })
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
 export default LoginController
