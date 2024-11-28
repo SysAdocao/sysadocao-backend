@@ -61,13 +61,36 @@ class UserController {
     try {
       const user = await prisma.user.findUnique({
         where: { id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
+          addressId: true,
+        },
       })
 
       if (!user) {
         throw new AppError("User not found!", 404)
       }
 
-      return res.status(200).json(user)
+      const address = await prisma.address.findUnique({
+        where: { id: user.addressId },
+        select: {
+          street: true,
+          number: true,
+          neighborhood: true,
+          city: true,
+          state: true,
+          zipCode: true,
+          complement: true,
+        },
+      })
+
+      const userWithAddress = { ...user, address }
+
+      return res.status(200).json(userWithAddress)
     } catch (error) {
       next(error)
     }
@@ -89,7 +112,18 @@ class UserController {
         throw new AppError("User not found!", 404)
       }
 
-      return res.status(200).json(user)
+      const updatedAddress = await prisma.address.update({
+        data: req.body.address,
+        where: { id: user.addressId },
+      })
+
+      if (!updatedAddress) {
+        throw new AppError("Address not found!", 404)
+      }
+
+      const updatedUser = { ...user, address: updatedAddress }
+
+      return res.status(200).json(updatedUser)
     } catch (error) {
       next(error)
     }
