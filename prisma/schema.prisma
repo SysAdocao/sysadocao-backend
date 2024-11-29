@@ -20,12 +20,22 @@ model Pet {
   birthDate   DateTime   @default(now())
   description String
   status      Status     @default(AVAILABLE)
+  isVacinated Boolean    @default(false)
+  isCastrated Boolean    @default(false)
+  size        Size
+  imageUrl    String
   Adoption    Adoption[]
 }
 
 enum Status {
   AVAILABLE
   ADOPTED
+}
+
+enum Size {
+  SMALL
+  MEDIUM
+  BIG
 }
 
 model Address {
