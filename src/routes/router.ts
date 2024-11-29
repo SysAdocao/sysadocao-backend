@@ -2,6 +2,7 @@ import { Router } from "express"
 import petRouter from "./pet.routes"
 import userRouter from "./user.routes"
 import adoptionRouter from "./adoption.routes"
+import favoriteRouter from "./favorite.routes"
 import LoginController from "@/controllers/LoginController"
 import { verifyAuthentication } from "@/middlewares/auth"
 
@@ -12,6 +13,7 @@ router.use("/users", userRouter)
 router.post("/login", loginController.login)
 router.get("/validate-token", loginController.validadeToken)
 router.use("/pets", verifyAuthentication, petRouter)
+router.use("/favorites", verifyAuthentication, favoriteRouter)
 router.use("/adoptions", verifyAuthentication, adoptionRouter)
 
 export default router
