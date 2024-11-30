@@ -47,7 +47,7 @@ class PetController {
 
   public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, species, size } = req.query
+      const { name, species, size, isVacinated, isCastrated } = req.query
 
       const filters: Prisma.PetWhereInput = {}
 
@@ -59,6 +59,13 @@ class PetController {
       }
       if (size && SizeEnum.safeParse(size).success) {
         filters.size = size as Prisma.EnumSizeFilter
+      }
+      // verificar se o valor é true ou false para isVacinated e isCastrated
+      if (isVacinated) {
+        filters.isVacinated = isVacinated === "true"
+      }
+      if (isCastrated) {
+        filters.isCastrated = isCastrated === "true"
       }
 
       const petsList = await prisma.pet.findMany({
